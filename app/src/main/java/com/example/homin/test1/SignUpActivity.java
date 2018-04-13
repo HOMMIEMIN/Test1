@@ -94,7 +94,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                             Contact c = new Contact(etSignUpEmail.getText().toString(),etSignUpName.getText().toString(),"dddd",location,list,list2,true);
 
-                            reference.child(key).child("contact").setValue(c);
+                            reference.child("Contact").child(key).setValue(c);
 
 
                             progressDialog.dismiss();

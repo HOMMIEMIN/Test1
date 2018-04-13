@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private Thread loginThread;
     private DatabaseReference reference;
+    private String key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,17 +98,22 @@ public class LoginActivity extends AppCompatActivity {
                             int b = etEmail.getText().toString().indexOf(".");
                             String key2 = etEmail.getText().toString().substring(c + 1,b);
 
+
                             String key3 = etEmail.getText().toString().substring(b + 1,etEmail.getText().toString().length());
-                            String key = key1+key2+key3;
+                            key = key1+key2+key3;
                             DaoImple.getInstance().setKey(key);
                             Log.i("vv",key);
-                            reference.child(key).addChildEventListener(new ChildEventListener() {
+
+                            reference.child("Contact").addChildEventListener(new ChildEventListener() {
                                 @Override
                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                    Contact c = dataSnapshot.getValue(Contact.class);
-                                    DaoImple.getInstance().setLoginEmail(c.getUserId());
-                                    DaoImple.getInstance().setLoginId(c.getUserName());
-                                    DaoImple.getInstance().setContact(c);
+                                    if(dataSnapshot.getKey().equals(key)) {
+                                        Contact c = dataSnapshot.getValue(Contact.class);
+                                        Log.i("vv2","dd : " + c.getUserId());
+                                        DaoImple.getInstance().setLoginEmail(c.getUserId());
+                                        DaoImple.getInstance().setLoginId(c.getUserName());
+                                        DaoImple.getInstance().setContact(c);
+                                    }
                                 }
 
                                 @Override

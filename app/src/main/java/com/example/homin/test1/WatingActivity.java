@@ -45,11 +45,11 @@ public class WatingActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(CustomHolder holder, final int position) {
-            yourContact = new Contact();
             final String yourKey = getKey(list.get(position));
-            reference.child(yourKey).addChildEventListener(new ChildEventListener() {
+            reference.child("Contact").addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    if(dataSnapshot.getKey().equals(yourKey))
                     yourContact = dataSnapshot.getValue(Contact.class);
                 }
 
@@ -107,26 +107,22 @@ public class WatingActivity extends AppCompatActivity {
                     }
 
 
-
-
                     for(int a = 0; a < myWattingList.size() ; a++){
                         if(myWattingList.get(a).equals(list.get(position))){
                             myWattingList.remove(a);
                         }
                     }
+                    yourfList.add(myContact.getUserId());
+                    myfList.add(yourContact.getUserId());
 
                     myContact.setFriendList(myfList);
                     myContact.setWattingList(myWattingList);
-
                     yourContact.setFriendList(yourfList);
 
+                    reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
+
                     String yourKey = getKey(yourContact.getUserId());
-
-                    reference.child(yourKey).child("contact").setValue(yourContact);
-
-                    reference.child(DaoImple.getInstance().getKey()).child("contact").setValue(myContact);
-
-
+                    reference.child("Contact").child(yourKey).setValue(yourContact);
                 }
             });
 
@@ -199,17 +195,19 @@ public class WatingActivity extends AppCompatActivity {
 
         String key = DaoImple.getInstance().getKey();
 
-        reference.child(key).addChildEventListener(new ChildEventListener() {
+        reference.child("Contact").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.i("vv","에드 들어옴");
-                Contact c = dataSnapshot.getValue(Contact.class);
-                Log.i("vv","이름이당이름 : " + c.getUserName());
-                list = c.getWattingList();
-                if(list == null){
-                    list = new ArrayList<>();
+                if(dataSnapshot.getKey().equals(DaoImple.getInstance().getKey())) {
+                    Log.i("vv", "에드 들어옴");
+                    Contact c = dataSnapshot.getValue(Contact.class);
+                    Log.i("vv", "이름이당이름 : " + c.getUserName());
+                    list = c.getWattingList();
+                    if (list == null) {
+                        list = new ArrayList<>();
+                    }
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
 
             }
 

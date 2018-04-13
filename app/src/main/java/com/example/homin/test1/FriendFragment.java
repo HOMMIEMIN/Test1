@@ -99,11 +99,12 @@ public class FriendFragment extends Fragment {
         public void onBindViewHolder(FriendHolder holder, final int position) {
             Log.i("kaka","뷰타입33 : " + holder.getItemViewType());
             if(holder.getItemViewType() == 0) {
+
                 holder.iv.setImageResource(R.drawable.p1);
-//                holder.tv1.setText(list.get(position).getName());
+                holder.tv1.setText(friendList.get(position).getUserName());
             }else{
                 holder.iv.setImageResource(R.drawable.p1);
-                holder.tv1.setText(list2.get(position).getUserName());
+                holder.tv1.setText(friendList.get(position).getUserName());
 
             }
 
@@ -126,26 +127,27 @@ public class FriendFragment extends Fragment {
                             if(list2.get(position).getUserName().equals(list.get(position))){
                                 nameCheck = true;
                             }
-
-
                     }
                         if(nameCheck){
                             Toast.makeText(context, "이미 추가 되어 있습니다.", Toast.LENGTH_SHORT).show();
                         }else{
                             String id = list2.get(position).getUserId();
                             Contact yourContact = list2.get(position);
+                            Log.i("vv1","너아이디 : " + yourContact.getUserName());
                             String yourKey = getKey(id);
                             List<String> yourList = yourContact.getWattingList();
+
                             if(yourList != null) {
                                 yourList.add(DaoImple.getInstance().getContact().getUserId());
                                 yourContact.setWattingList(yourList);
-                                reference.child(yourKey).child("contact").setValue(yourContact);
+                                reference.child("Contact").child(yourKey).setValue(yourContact);
                                 Toast.makeText(context, "친구 신청을 요청하였습니다.", Toast.LENGTH_SHORT).show();
                             }else{
                                 yourList = new ArrayList<>();
+                                Log.i("dd2",DaoImple.getInstance().getContact().getUserId());
                                 yourList.add(DaoImple.getInstance().getContact().getUserId());
                                 yourContact.setWattingList(yourList);
-                                reference.child(yourKey).child("contact").setValue(yourContact);
+                                reference.child("Contact").child(yourKey).setValue(yourContact);
                                 Toast.makeText(context, "친구 신청을 요청하였습니다.", Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -268,21 +270,21 @@ public class FriendFragment extends Fragment {
                     et.setText("");
                 }else{
                     DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
-                    reference2.addChildEventListener(new ChildEventListener() {
+                    reference2.child("Contact").addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                                for (DataSnapshot b : dataSnapshot.getChildren()) {
-                                    Contact c = b.getValue(Contact.class);
-                                    Log.i("vv","cc : " + c.getUserName());
-                                    if (c.getUserName().equals(et.getText().toString())) {
-                                        viewTypeSelect = 1;
-                                        list2.add(c);
-                                        size = list2.size();
-                                        adapter.notifyDataSetChanged();
-                                        et.setText("");
-                                    }
+                            Contact c = dataSnapshot.getValue(Contact.class);
+                            Log.i("vv1","cc : " + c.getUserName());
+                            if (c.getUserName().equals(et.getText().toString())) {
+                                viewTypeSelect = 1;
+                                list2.add(c);
+                                size = list2.size();
+                                adapter.notifyDataSetChanged();
+                                et.setText("");
+                                }
 
-                            }
+
+
                         }
 
                         @Override
@@ -314,55 +316,22 @@ public class FriendFragment extends Fragment {
 
 
 
-        reference.child(key).addChildEventListener(new ChildEventListener() {
+        reference.child("Contact").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 viewTypeSelect = 0;
-                Contact c = dataSnapshot.getValue(Contact.class);
-                list = c.getFriendList();
-                if(list != null) {
-                    size = list.size();
-                }else{
-                    list = new ArrayList<>();
-                    size = list.size();
-                }
-                adapter.notifyDataSetChanged();
-
-
-                for(int a = 0 ; a < list.size() ; a++){
-                    int b = list.get(a).indexOf("@");
-                    String key1 = list.get(a).substring(0,b);
-                    int d = list.get(a).indexOf(".");
-                    String key2 = list.get(a).substring(b + 1,d);
-                    String key3 = list.get(a).substring(d + 1,list.get(a).length());
-                    String key = key1+key2+key3;
-
-                    reference.child(key).addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                            friendList.add(dataSnapshot.getValue(Contact.class));
-                        }
-
-                        @Override
-                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                        }
-
-                        @Override
-                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                Contact dd = dataSnapshot.getValue(Contact.class);
+                friendList.add(dd);
+                if(dataSnapshot.getKey().equals(DaoImple.getInstance().getKey())) {
+                    Contact c = dataSnapshot.getValue(Contact.class);
+                    list = c.getFriendList();
+                    if (list != null) {
+                        size = list.size();
+                    } else {
+                        list = new ArrayList<>();
+                        size = list.size();
+                    }
+                    adapter.notifyDataSetChanged();
                 }
 
             }
