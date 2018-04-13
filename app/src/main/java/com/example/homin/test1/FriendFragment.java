@@ -130,10 +130,12 @@ public class FriendFragment extends Fragment {
                             }
                     }
                         for(int a = 0 ; a < friendList.size() ; a++){
-                            friendList.get(a).equals(list.get(position)){
-                                nameCheck = true;
-                            }
+                            friendList.get(a).equals(list.get(position));
+                            nameCheck = true;
                         }
+
+                        
+
                         if(nameCheck){
                             Toast.makeText(context, "이미 추가 되어 있습니다.", Toast.LENGTH_SHORT).show();
                         }else{
