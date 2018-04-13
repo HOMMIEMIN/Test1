@@ -37,6 +37,7 @@ import static android.net.sip.SipErrorCode.TIME_OUT;
  */
 public class FriendFragment extends Fragment {
 
+    private List<String> myFriendList;
 
     private Handler mHandle = new Handler(){
         @Override
@@ -122,12 +123,17 @@ public class FriendFragment extends Fragment {
                 holder.btn2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        for(int a = 0 ; a < list.size() ; a++){
-                            // TODO : 수정
-                            if(list2.get(position).getUserName().equals(list.get(position))){
-                                nameCheck = true;
+                        myFriendList = new ArrayList<>();
+                        for(int a = 0 ; a < friendList.size() ; a++){
+                            if(friendList.get(a).getUserId().equals(DaoImple.getInstance().getLoginEmail())){
+                                myFriendList = friendList.get(a).getFriendList();
                             }
                     }
+                        for(int a = 0 ; a < friendList.size() ; a++){
+                            friendList.get(a).equals(list.get(position)){
+                                nameCheck = true;
+                            }
+                        }
                         if(nameCheck){
                             Toast.makeText(context, "이미 추가 되어 있습니다.", Toast.LENGTH_SHORT).show();
                         }else{
