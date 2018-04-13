@@ -123,6 +123,11 @@ public class WatingActivity extends AppCompatActivity {
 
                     String yourKey = getKey(yourContact.getUserId());
                     reference.child("Contact").child(yourKey).setValue(yourContact);
+
+                    list.remove(position);
+                    adapter.notifyDataSetChanged();
+
+                    Toast.makeText(WatingActivity.this, "친구 등록이 되었습니다.", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -132,10 +137,10 @@ public class WatingActivity extends AppCompatActivity {
                     String myKey = DaoImple.getInstance().getKey();
                     String deleteKey = keyList.get(position);
                     list.remove(position);
-                    keyList.remove(position);
-                    reference.child(myKey).child("RequestList/"+deleteKey).removeValue();
+//                    keyList.remove(position);
+//                    reference.child(myKey).child("RequestList/"+deleteKey).removeValue();
                     adapter.notifyDataSetChanged();
-                    Toast.makeText(WatingActivity.this, "친구요청을 취소 하였습니다", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(WatingActivity.this, "친구 요청을 취소 하였습니다", Toast.LENGTH_SHORT).show();
 
                 }
             });

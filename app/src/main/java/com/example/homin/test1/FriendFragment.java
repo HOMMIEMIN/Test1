@@ -38,6 +38,8 @@ import static android.net.sip.SipErrorCode.TIME_OUT;
 public class FriendFragment extends Fragment {
 
     private List<String> myFriendList;
+    private List<String> yourWattingList;
+
 
     private Handler mHandle = new Handler(){
         @Override
@@ -62,7 +64,8 @@ public class FriendFragment extends Fragment {
     class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendHolder>{
 
         private int viewType2;
-        private boolean nameCheck;
+
+
 
         @Override
         public int getItemViewType(int position) {
@@ -98,14 +101,19 @@ public class FriendFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(FriendHolder holder, final int position) {
+            friendCheck = false;
+            nameCheck = false;
             Log.i("kaka","뷰타입33 : " + holder.getItemViewType());
             if(holder.getItemViewType() == 0) {
-
                 holder.iv.setImageResource(R.drawable.p1);
-                holder.tv1.setText(friendList.get(position).getUserName());
+                for(int a = 0 ; a < friendList.size() ; a++){
+                    if(friendList.get(a).getUserId().equals(list.get(position))){
+                        holder.tv1.setText(friendList.get(a).getUserName());
+                    }
+                }
             }else{
                 holder.iv.setImageResource(R.drawable.p1);
-                holder.tv1.setText(friendList.get(position).getUserName());
+                holder.tv1.setText(list2.get(position).getUserName());
 
             }
 
@@ -129,15 +137,33 @@ public class FriendFragment extends Fragment {
                                 myFriendList = friendList.get(a).getFriendList();
                             }
                     }
-                        for(int a = 0 ; a < friendList.size() ; a++){
-                            friendList.get(a).equals(list.get(position));
-                            nameCheck = true;
+                        for(int a = 0 ; a < myFriendList.size() ; a++){
+                            if(myFriendList.get(a).equals(list2.get(0).getUserId())) {
+                                Log.i("zz7", myFriendList.get(a));
+                                nameCheck = true;
+                            }
                         }
-
-                        
+                        for(int a = 0 ; a < friendList.size() ; a++){
+                            String check = friendList.get(a).getUserId();
+                            if(check.equals(list2.get(position).getUserId())){
+                                Contact c = list2.get(0);
+                                if(c.getWattingList() != null){
+                                    yourWattingList = c.getWattingList();
+                                    for(int count = 0 ; count < yourWattingList.size() ; count++){
+                                        if(yourWattingList.get(count).equals(myContact.getUserId())){
+                                                friendCheck = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                         if(nameCheck){
                             Toast.makeText(context, "이미 추가 되어 있습니다.", Toast.LENGTH_SHORT).show();
+                        }else if(friendCheck){
+                            Toast.makeText(context, "이미 친구 신청이 되어 있습니다.", Toast.LENGTH_SHORT).show();
+                        }else if(list2.get(position).getUserName().equals(DaoImple.getInstance().getLoginId())){
+                            Toast.makeText(context, "자신을 추가할 수 없습니다.", Toast.LENGTH_SHORT).show();
                         }else{
                             String id = list2.get(position).getUserId();
                             Contact yourContact = list2.get(position);
@@ -208,6 +234,8 @@ public class FriendFragment extends Fragment {
     private ProgressDialog p1;
     private String key;
     private Contact myContact;
+    private boolean friendCheck;
+    private boolean nameCheck;
 
 
     public FriendFragment() {
@@ -263,6 +291,8 @@ public class FriendFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                friendCheck = false;
+                nameCheck = false;
                 if(list2.size() != 0) {
                     list2.clear();
                 }
