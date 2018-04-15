@@ -87,10 +87,8 @@ public class SignUpActivity extends AppCompatActivity {
                             List<String> list = new ArrayList<>();
                             List<String> list2 = new ArrayList<>();
                             List<Double> location = new ArrayList<>();
-                            location.add(122.222);
-                            location.add(422.222);
-
-
+                            location.add(111.111);
+                            location.add(222.222);
 
                             Contact c = new Contact(etSignUpEmail.getText().toString(),etSignUpName.getText().toString(),"dddd",location,list,list2,true);
 

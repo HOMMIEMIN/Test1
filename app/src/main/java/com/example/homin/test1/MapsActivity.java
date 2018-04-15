@@ -2,6 +2,10 @@ package com.example.homin.test1;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +13,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -41,6 +46,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.homin.test1.WriteActivity.*;
@@ -60,6 +66,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FloatingActionButton actionButton;
     private DatabaseReference reference;
     private List<String> list;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
+    private LatLng myLatLng;
+    private Marker myMarker;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -85,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     FragmentManager manager2 = getSupportFragmentManager();
                     FragmentTransaction transaction2 = manager2.beginTransaction();
                     MypageFragment mypageFragment = new MypageFragment();
-                    transaction2.replace(R.id.container_main,mypageFragment);
+                    transaction2.replace(R.id.container_main, mypageFragment);
                     transaction2.commit();
                     return true;
             }
@@ -108,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         FriendFragment friendFragment = new FriendFragment();
-        transaction.replace(R.id.container_main,friendFragment);
+        transaction.replace(R.id.container_main, friendFragment);
         transaction.commit();
 
         registerForContextMenu(findViewById(R.id.map));
@@ -120,17 +130,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            if(newState == BottomSheetBehavior.STATE_COLLAPSED){
-                actionLayout.setVisibility(View.VISIBLE);
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    actionLayout.setVisibility(View.VISIBLE);
 
-            }
-            if(newState == BottomSheetBehavior.STATE_EXPANDED){
-                actionLayout.setVisibility(View.GONE);
-            }
+                }
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    actionLayout.setVisibility(View.GONE);
+                }
 
-            if(newState == BottomSheetBehavior.STATE_DRAGGING){
-                actionLayout.setVisibility(View.VISIBLE);
-            }
+                if (newState == BottomSheetBehavior.STATE_DRAGGING) {
+                    actionLayout.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -138,8 +148,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
-
-
 
 
     }
@@ -156,16 +164,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        final Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
-        startActivityForResult(intent,400);
+
         email = DaoImple.getInstance().getLoginEmail();
         mMap = googleMap;
         reference = FirebaseDatabase.getInstance().getReference();
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//        myLocationUpdate();
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -180,18 +185,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent1 = new Intent(MapsActivity.this,WatingActivity.class);
+                Intent intent1 = new Intent(MapsActivity.this, WatingActivity.class);
                 startActivity(intent1);
 
             }
         });
 
 
-
-
     }
 
-
+//    private void myLocationUpdate() {
+//        if (locationManager == null) {
+//            locationManager = (LocationManager) this.getSystemService(context.LOCATION_SERVICE);
+//        }
+//
+//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                return;
+//            }
+//
+//            locationListener = new LocationListener() {
+//                @Override
+//                public void onLocationChanged(Location location) {
+//                    Contact myContact = DaoImple.getInstance().getContact();
+//                    List<Double> myLocation = new ArrayList<>();
+//                    myLocation.add(location.getLatitude());
+//                    myLocation.add(location.getLongitude());
+//                    myContact.setUserLocation(myLocation);
+//                    reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
+//                    Log.i("tt1",location.toString());
+//                    myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+//
+//                    mMap.addMarker(new MarkerOptions()).setPosition(myLatLng);
+//
+//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
+//                }
+//
+//                @Override
+//                public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//                }
+//
+//                @Override
+//                public void onProviderEnabled(String provider) {
+//
+//                }
+//
+//                @Override
+//                public void onProviderDisabled(String provider) {
+//
+//                }
+//            };
+//
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100, locationListener);
+//
+//    }
 
 
     @Override

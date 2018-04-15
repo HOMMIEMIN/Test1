@@ -1,9 +1,15 @@
 package com.example.homin.test1;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     private String key;
     private boolean wattingCheck;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -50,6 +57,12 @@ public class LoginActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.button_signUp);
         mAuth = FirebaseAuth.getInstance();
         reference = FirebaseDatabase.getInstance().getReference();
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+            requestPermissions(permissions,21);
+        }
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,12 +123,11 @@ public class LoginActivity extends AppCompatActivity {
                             reference.child("Contact").addChildEventListener(new ChildEventListener() {
                                 @Override
                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                                    Contact aa = dataSnapshot.getValue(Contact.class);
                                     if(dataSnapshot.getKey().equals(key)) {
                                         Contact c = dataSnapshot.getValue(Contact.class);
-                                            if(c.getWattingList().size() > 0){
-                                                Log.i("aaz",c.getWattingList().size()+"");
-                                                wattingCheck = true;
-                                            }
+                                        Log.i("tt1",c.getUserName());
+
 
                                         Log.i("vv2","dd : " + c.getUserId());
                                         DaoImple.getInstance().setLoginEmail(c.getUserId());
@@ -144,11 +156,9 @@ public class LoginActivity extends AppCompatActivity {
 
                                 }
                             });
-                            Intent intent = new Intent();
-                            intent.putExtra("check",wattingCheck);
-                            Log.i("aaf",wattingCheck +"");
-                            setResult(RESULT_OK, intent);
-                            finish();
+                            Intent intent = new Intent(LoginActivity.this,MapsActivity.class);
+                            startActivity(intent);
+
                         }
                     }
                 });
