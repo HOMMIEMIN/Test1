@@ -3,6 +3,7 @@ package com.example.homin.test1;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Icon;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -37,6 +38,7 @@ import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -45,6 +47,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +72,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LocationListener locationListener;
     private LatLng myLatLng;
-    private Marker myMarker;
+    private ClusteringMarker myMarker;
+    private ClusterManager<ClusteringMarker> clusterManager;
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -168,17 +173,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         email = DaoImple.getInstance().getLoginEmail();
         mMap = googleMap;
         reference = FirebaseDatabase.getInstance().getReference();
+        Log.i("gg6","클러스터 설정");
 
-//        myLocationUpdate();
-
+        myLocationUpdate();
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 addMakerLocation = latLng;
                 openContextMenu(findViewById(R.id.map));
-
-
             }
         });
 
@@ -187,58 +190,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Intent intent1 = new Intent(MapsActivity.this, WatingActivity.class);
                 startActivity(intent1);
-
             }
         });
 
 
     }
 
-//    private void myLocationUpdate() {
-//        if (locationManager == null) {
-//            locationManager = (LocationManager) this.getSystemService(context.LOCATION_SERVICE);
-//        }
-//
-//            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                return;
-//            }
-//
-//            locationListener = new LocationListener() {
-//                @Override
-//                public void onLocationChanged(Location location) {
-//                    Contact myContact = DaoImple.getInstance().getContact();
-//                    List<Double> myLocation = new ArrayList<>();
-//                    myLocation.add(location.getLatitude());
-//                    myLocation.add(location.getLongitude());
-//                    myContact.setUserLocation(myLocation);
-//                    reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
-//                    Log.i("tt1",location.toString());
-//                    myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-//
-//                    mMap.addMarker(new MarkerOptions()).setPosition(myLatLng);
-//
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
-//                }
-//
-//                @Override
-//                public void onStatusChanged(String provider, int status, Bundle extras) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderEnabled(String provider) {
-//
-//                }
-//
-//                @Override
-//                public void onProviderDisabled(String provider) {
-//
-//                }
-//            };
-//
-//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100, locationListener);
-//
-//    }
+    private void myLocationUpdate() {
+        if (locationManager == null) {
+            locationManager = (LocationManager) this.getSystemService(context.LOCATION_SERVICE);
+        }
+
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    if(clusterManager == null) {
+                        clusterManager = new ClusterManager<>(MapsActivity.this, mMap);
+                        mMap.setOnCameraIdleListener(clusterManager);
+                        Log.i("gg6","클러스터 생성");
+                    }
+                    if(myMarker != null) {
+                        clusterManager.removeItem(myMarker);
+                    }
+                    Contact myContact = DaoImple.getInstance().getContact();
+                    List<Double> myLocation = new ArrayList<>();
+                    myLocation.add(location.getLatitude());
+                    myLocation.add(location.getLongitude());
+                    myContact.setUserLocation(myLocation);
+                    reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
+                    Log.i("tt1",location.toString());
+                    myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());
+                    clusterManager.addItem(myMarker);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
+
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+
+                }
+            };
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100, locationListener);
+
+    }
 
 
     @Override

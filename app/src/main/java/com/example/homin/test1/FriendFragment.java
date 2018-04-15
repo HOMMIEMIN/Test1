@@ -142,7 +142,9 @@ public class FriendFragment extends Fragment {
                 holder.btn2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        myFriendList = new ArrayList<>();
+                        if(myFriendList == null) {
+                            myFriendList = new ArrayList<>();
+                        }
                         for(int a = 0 ; a < friendList.size() ; a++){
                             if(friendList.get(a).getUserId().equals(DaoImple.getInstance().getLoginEmail())){
                                 myFriendList = friendList.get(a).getFriendList();
@@ -161,7 +163,7 @@ public class FriendFragment extends Fragment {
                                 if(c.getWattingList() != null){
                                     yourWattingList = c.getWattingList();
                                     for(int count = 0 ; count < yourWattingList.size() ; count++){
-                                        if(yourWattingList.get(count).equals(myContact.getUserId())){
+                                        if(yourWattingList.get(count).equals(DaoImple.getInstance().getContact().getUserId())){
                                                 friendCheck = true;
                                         }
                                     }
@@ -248,6 +250,7 @@ public class FriendFragment extends Fragment {
     private Contact myContact;
     private boolean friendCheck;
     private boolean nameCheck;
+    private String searshName;
 
 
     public FriendFragment() {
@@ -303,6 +306,7 @@ public class FriendFragment extends Fragment {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                list2.clear();
                 friendCheck = false;
                 nameCheck = false;
                 if(list2.size() != 0) {
@@ -319,18 +323,23 @@ public class FriendFragment extends Fragment {
                     Toast.makeText(context, "검색어를 입력 하세요", Toast.LENGTH_SHORT).show();
                     et.setText("");
                 }else{
+                    searshName = et.getText().toString();
+                    et.setText("");
+                    list2.clear();
+                    size = list2.size();
+                    adapter.notifyDataSetChanged();
                     DatabaseReference reference2 = FirebaseDatabase.getInstance().getReference();
                     reference2.child("Contact").addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             Contact c = dataSnapshot.getValue(Contact.class);
                             Log.i("vv1","cc : " + c.getUserName());
-                            if (c.getUserName().equals(et.getText().toString())) {
+                            if (c.getUserName().equals(searshName)) {
                                 viewTypeSelect = 1;
                                 list2.add(c);
                                 size = list2.size();
                                 adapter.notifyDataSetChanged();
-                                et.setText("");
+                                searshName = null;
                                 }
 
 
