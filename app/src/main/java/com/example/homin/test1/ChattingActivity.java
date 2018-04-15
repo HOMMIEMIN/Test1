@@ -20,8 +20,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+
+import static com.example.homin.test1.FriendFragment.*;
 
 public class ChattingActivity extends AppCompatActivity {
 
@@ -30,7 +35,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         @Override
         public int getItemViewType(int position) {
-            if(cList.get(position).getName().equals(myId)) {
+            if(cList.get(position).getName().equals(DaoImple.getInstance().getLoginId())) {
                 return 0;
             }else{
                 return 1;
@@ -62,9 +67,10 @@ public class ChattingActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(ChatAdapter.ChatHolder holder, int position) {
 
-                holder.iv.setImageResource(cList.get(position).getImageId());
+                holder.iv.setImageResource(R.drawable.p1);
                 holder.tv1.setText(cList.get(position).getName());
                 holder.tv2.setText(cList.get(position).getChat());
+                holder.tv3.setText(cList.get(position).getTime());
                 String id = holder.tv1.getText().toString();
             if(holder.getItemViewType() == 0) {
                 holder.tv2.setBackground(getDrawable(R.drawable.ddd));
@@ -84,12 +90,14 @@ public class ChattingActivity extends AppCompatActivity {
             ImageView iv;
             TextView tv1;
             TextView tv2;
+            TextView tv3;
 
             public ChatHolder(View itemView) {
                 super(itemView);
                 iv = itemView.findViewById(R.id.imageView_chatLaout);
                 tv1 = itemView.findViewById(R.id.textView_chatLayout1);
                 tv2 = itemView.findViewById(R.id.textView_chatLaout2);
+                tv3 = itemView.findViewById(R.id.textView_Time);
             }
         }
     }
@@ -102,9 +110,10 @@ public class ChattingActivity extends AppCompatActivity {
     private DatabaseReference reference;
     private int position1;
     private ChatAdapter adapter;
-    private String myId;
     private String youId;
+    private String yourName;
     private boolean check;
+    private String putKey;
 
 
     @Override
@@ -127,7 +136,10 @@ public class ChattingActivity extends AppCompatActivity {
         reference = FirebaseDatabase.getInstance().getReference();
 
         Intent intent = getIntent();
-        String chatListName = intent.getStringExtra(FriendFragment.POSITION_KEY);
+
+        youId = intent.getStringExtra(CHAT_YOURID);
+        Log.i("gg1",youId);
+        yourName = intent.getStringExtra(CHAT_YOURNAME);
         check = intent.getBooleanExtra("check",false);
 
         recyclerView.hasFixedSize();
@@ -137,16 +149,11 @@ public class ChattingActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
 
-        myId = DaoImple.getInstance().getLoginId();
-
-
-
         if(check){
-            youId = chatListName;
+            putKey = getPutKey(DaoImple.getInstance().getKey(),getKey(youId));
             check = false;
         }else {
-            int a = DaoImple.getInstance().getYouEmail().indexOf("@");
-            youId = DaoImple.getInstance().getYouEmail().substring(0, a);
+            putKey = getPutKey(DaoImple.getInstance().getKey(),getKey(youId));
         }
 
         Log.i("kaka",youId);
@@ -155,7 +162,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         cList.clear();
 
-        reference.child("message").child(myId+"Chat").child(youId).addChildEventListener(new ChildEventListener() {
+        reference.child("Chat").child(putKey).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Chat chat = dataSnapshot.getValue(Chat.class);
@@ -193,15 +200,57 @@ public class ChattingActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Chat c = new Chat(myId,et.getText().toString(),DaoImple.getInstance().getLoginEmail(),R.drawable.p1);
+                Date date = new Date();
+                TimeZone timeZone = TimeZone.getTimeZone("Asia/Seoul");
+                SimpleDateFormat time = new SimpleDateFormat("a hh시mm분");
+                time.setTimeZone(timeZone);
+
+                Chat c = new Chat(DaoImple.getInstance().getLoginId(),DaoImple.getInstance().getLoginEmail(),
+                        et.getText().toString(),time.format(date).toString());
                 et.setText("");
-                reference.child("message").child(youId+"Chat").child(myId).push().setValue(c);
-                reference.child("message").child(myId+"Chat").child(youId).push().setValue(c);
+                reference.child("Chat").child(putKey).push().setValue(c);
 
             }
         });
 
 
+    }
+
+    public String getKey(String id){
+        int b = id.indexOf("@");
+        String key1 = id.substring(0,b);
+        int d = id.indexOf(".");
+        String key2 = id.substring(b + 1,d);
+        String key3 = id.substring(d + 1,id.length());
+        String key = key1+key2+key3;
+
+        return key;
+    }
+
+    public String getPutKey(String myId, String yourId){
+        String result = null;
+        int my = 0;
+        int you = 0;
+        char[] arrayMyId = new char[myId.length()];
+        char[] arrayYourId = new char[yourId.length()];
+        arrayMyId = myId.toCharArray();
+        arrayYourId = yourId.toCharArray();
+
+        for(int a = 0 ; a < arrayMyId.length ; a++){
+            my += arrayMyId[a];
+        }
+
+        for(int a = 0 ; a < arrayYourId.length ; a++){
+            you += arrayYourId[a];
+        }
+
+        if(my < you){
+            result = myId + yourId;
+        }else{
+            result = yourId + myId;
+        }
+
+        return result;
     }
 
 }

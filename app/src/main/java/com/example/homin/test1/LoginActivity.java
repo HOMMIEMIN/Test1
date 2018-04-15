@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail;
@@ -34,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private Thread loginThread;
     private DatabaseReference reference;
     private String key;
+    private boolean wattingCheck;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                                     if(dataSnapshot.getKey().equals(key)) {
                                         Contact c = dataSnapshot.getValue(Contact.class);
+                                            if(c.getWattingList().size() > 0){
+                                                Log.i("aaz",c.getWattingList().size()+"");
+                                                wattingCheck = true;
+                                            }
+
                                         Log.i("vv2","dd : " + c.getUserId());
                                         DaoImple.getInstance().setLoginEmail(c.getUserId());
                                         DaoImple.getInstance().setLoginId(c.getUserName());
@@ -136,6 +144,10 @@ public class LoginActivity extends AppCompatActivity {
 
                                 }
                             });
+                            Intent intent = new Intent();
+                            intent.putExtra("check",wattingCheck);
+                            Log.i("aaf",wattingCheck +"");
+                            setResult(RESULT_OK, intent);
                             finish();
                         }
                     }

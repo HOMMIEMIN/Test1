@@ -9,17 +9,17 @@ import java.io.Serializable;
 public class Chat implements Serializable{
 
     private String name;
-    private String Chat;
-    private String email;
-    private int imageId;
+    private String id;
+    private String chat;
+    private String time;
 
     public Chat(){}
 
-    public Chat(String name, String chat, String email, int imageId) {
+    public Chat(String name, String id, String chat, String time) {
         this.name = name;
-        Chat = chat;
-        this.email = email;
-        this.imageId = imageId;
+        this.id = id;
+        this.chat = chat;
+        this.time = time;
     }
 
     public String getName() {
@@ -30,27 +30,27 @@ public class Chat implements Serializable{
         this.name = name;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getChat() {
-        return Chat;
+        return chat;
     }
 
     public void setChat(String chat) {
-        Chat = chat;
+        this.chat = chat;
     }
 
-    public String getEmail() {
-        return email;
+    public String getTime() {
+        return time;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public int getImageId() {
-        return imageId;
-    }
-
-    public void setImageId(int imageId) {
-        this.imageId = imageId;
+    public void setTime(String time) {
+        this.time = time;
     }
 }

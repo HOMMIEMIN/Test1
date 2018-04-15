@@ -35,6 +35,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.List;
+
 import static com.example.homin.test1.WriteActivity.*;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -50,6 +58,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private View bottomview;
     private Menu mMenu;
     private FloatingActionButton actionButton;
+    private DatabaseReference reference;
+    private List<String> list;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -137,9 +147,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(final GoogleMap googleMap) {
         final Intent intent = new Intent(MapsActivity.this, LoginActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,400);
         email = DaoImple.getInstance().getLoginEmail();
         mMap = googleMap;
+        reference = FirebaseDatabase.getInstance().getReference();
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
@@ -167,7 +178,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
+
     }
+
 
 
 
@@ -202,8 +215,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(addMakerLocation).title(title).snippet(body)).showInfoWindow();
             }
         }
+        if(requestCode == 400 && requestCode == RESULT_OK){
+            boolean check = data.getBooleanExtra("check",false);
+            if(check){
+                actionButton.setImageResource(R.drawable.ddww);
+            }else{
+                actionButton.setImageResource(R.drawable.ic_notifications_black_24dp);
+            }
+        }
 
     }
-
 
 }

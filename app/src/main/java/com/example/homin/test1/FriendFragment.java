@@ -39,6 +39,8 @@ public class FriendFragment extends Fragment {
 
     private List<String> myFriendList;
     private List<String> yourWattingList;
+    String chatId;
+    String chatName;
 
 
     private Handler mHandle = new Handler(){
@@ -64,8 +66,6 @@ public class FriendFragment extends Fragment {
     class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.FriendHolder>{
 
         private int viewType2;
-
-
 
         @Override
         public int getItemViewType(int position) {
@@ -100,7 +100,7 @@ public class FriendFragment extends Fragment {
 
 
         @Override
-        public void onBindViewHolder(FriendHolder holder, final int position) {
+        public void onBindViewHolder(final FriendHolder holder, final int position) {
             friendCheck = false;
             nameCheck = false;
             Log.i("kaka","뷰타입33 : " + holder.getItemViewType());
@@ -120,11 +120,22 @@ public class FriendFragment extends Fragment {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context,ChattingActivity.class);
-                    intent.putExtra(POSITION_KEY,position);
-//                    DaoImple.getInstance().setYouEmail(list.get(position).getEmail());
-                    size = 0;
-                    startActivity(intent);
+
+                    if(holder.getItemViewType() == 0) {
+                       for(int a = 0 ; a < friendList.size() ; a++){
+                           Log.i("gg1",friendList.get(a).getUserName());
+                           Log.i("gg1",list.get(position));
+                           if(friendList.get(a).getUserId().equals(list.get(position))){
+                               chatId = friendList.get(a).getUserId();
+                               chatName = friendList.get(a).getUserName();
+                           }
+                       }
+                        Intent intent = new Intent(context, ChattingActivity.class);
+                        intent.putExtra(CHAT_YOURID, chatId);
+                        intent.putExtra(CHAT_YOURNAME, chatName);
+                        size = 0;
+                        startActivity(intent);
+                    }
                 }
             });
             if(holder.btn2 != null) {
@@ -222,8 +233,9 @@ public class FriendFragment extends Fragment {
     private List<Contact> friendList;
     private List<Contact> list2;
     private DatabaseReference reference;
-    public static final String POSITION_KEY = "position_key";
-    public static final String FRIEND_LIST_KEY = "list1_key";
+    public static final String CHAT_YOURID = "friend_chat_key";
+    public static final String CHAT_YOURNAME = "friend_chat_key2";
+    public static final String CHATLIST_YOURID = "chat_list_yourid";
     private ProgressDialog progressDialog;
     private Button btn;
     private EditText et;
