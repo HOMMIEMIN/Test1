@@ -82,7 +82,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     transaction1.commit();
                     return true;
                 case R.id.navigation_notifications:
-                    // TODO : 아직 설정값 없음
+                    FragmentManager manager2 = getSupportFragmentManager();
+                    FragmentTransaction transaction2 = manager2.beginTransaction();
+                    MypageFragment mypageFragment = new MypageFragment();
+                    transaction2.replace(R.id.container_main,mypageFragment);
+                    transaction2.commit();
                     return true;
             }
             return false;
@@ -100,6 +104,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         BottomNavigationView navigationView = findViewById(R.id.navigation);
         navigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         actionButton = findViewById(R.id.floatingActionButton);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        FriendFragment friendFragment = new FriendFragment();
+        transaction.replace(R.id.container_main,friendFragment);
+        transaction.commit();
 
         registerForContextMenu(findViewById(R.id.map));
 
