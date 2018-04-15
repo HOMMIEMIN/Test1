@@ -106,7 +106,6 @@ public class ChattingActivity extends AppCompatActivity {
     private EditText et;
     private Button btn;
     private List<Chat> cList;
-    private List<Member> fList;
     private DatabaseReference reference;
     private int position1;
     private ChatAdapter adapter;
@@ -131,8 +130,6 @@ public class ChattingActivity extends AppCompatActivity {
         }
 
         cList = new ArrayList<>();
-//      cList = DaoImple.getInstance().getcList();
-        fList = DaoImple.getInstance().getfList();
         reference = FirebaseDatabase.getInstance().getReference();
 
         Intent intent = getIntent();
