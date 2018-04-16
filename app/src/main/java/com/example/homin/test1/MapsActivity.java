@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,7 +48,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -202,6 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "위치정보 공유 승인이 필요합니다", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -225,8 +229,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     myLocation.add(location.getLongitude());
                     myContact.setUserLocation(myLocation);
 
+
                     reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
-                    Log.i("ㅎㅎ",location.toString());
+
+                    //ClusterManagerItmes 이미지 추가/사이즈 줄이기
+                    clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
+                    clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusteringMarker>());
+
 
                     myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
                     myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());

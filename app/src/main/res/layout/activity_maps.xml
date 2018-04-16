@@ -33,6 +33,12 @@
                 android:clickable="true"
                 android:src="@drawable/ic_notifications_black_24dp" />
 
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/selfLocationIdentifier"
+
+
+                />
+
 
         </fragment>
 
