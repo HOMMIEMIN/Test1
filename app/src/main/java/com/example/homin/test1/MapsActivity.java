@@ -72,12 +72,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Menu mMenu;
     private FloatingActionButton actionButton;
     private DatabaseReference reference;
-    private List<String> list;
+    private List<String> myFriendList;
     private LocationManager locationManager;
     private LocationListener locationListener;
     private LatLng myLatLng;
     private ClusteringMarker myMarker;
     private ClusterManager<ClusteringMarker> clusterManager;
+    private List<Contact> myFriendContactList;
+    private List<Contact> contactList;
 
     //자기위치로 되돌리는 버튼
     private FloatingActionButton selfLocationButton;
@@ -119,6 +121,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myFriendContactList = new ArrayList<>();
         setContentView(R.layout.activity_maps);
 
         //자기위치찾아주는 버튼 찾기
@@ -194,8 +197,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         reference = FirebaseDatabase.getInstance().getReference();
         Log.i("gg6","클러스터 설정");
 
-        myLocationUpdate();
-        friendLocationUpdate();
+        myLocationUpdate(); // 내 위치 업데이트
+        getFriendList(); // 친구 목록 가져오기
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -214,16 +218,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-    }
-
-    private void friendLocationUpdate() {
+        // 친구 위치정보 받아오기
         reference.child("Contact").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                // 내 친구 리스트 받아오기
-                Contact contact = dataSnapshot.getValue(Contact.class);
-                if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
+                if(myFriendList != null){
+                    Contact contact = dataSnapshot.getValue(Contact.class);
+                    for(int a = 0 ; a < myFriendList.size() ; a++){
+                        if(myFriendList.get(a).equals(contact.getUserId())){
+                            if(clusterManager == null){
+                                clusterManager = new ClusterManager<>(MapsActivity.this,mMap);
+                            }
 
+                            if(a == 0){
+                                clusterManager.clearItems();
+                            }
+
+                            // 친구들 위치정보 받아와서 구글맵에 갱신
+                            List<Double> friendLocation = contact.getUserLocation();
+                            ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),friendLocation.get(1));
+                            Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
+                            clusterManager.addItem(friendMarker);
+                            clusterManager.cluster();
+                        }
+                    }
                 }
             }
 
@@ -247,6 +265,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+
+
+    }
+
+    private void getFriendList() {
+        contactList = new ArrayList<>();
+        reference.child("Contact").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                // 내 친구 리스트 받아오기
+                Contact contact = dataSnapshot.getValue(Contact.class);
+                contactList.add(contact);
+                if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
+                    Log.i("ggg2","프렌드리스트 전");
+                    if(contact.getFriendList() != null) {
+                        Log.i("ggg2","프렌드리스트 가져옴");
+                        myFriendList = contact.getFriendList();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        Log.i("ggg2","ㅇㅇㅇㅇ");
+        // 내 친구들 contact 리스트 add
+        for(int a = 0 ; a < contactList.size() ; a++){
+            Log.i("ggg2","mycontact.get(0) : "+myFriendList.get(0));
+            Log.i("ggg2","contactList.get(a) : " + contactList.get(a).getUserId());
+            for(int b = 0 ; b < myFriendList.size() ; b++){
+                if(contactList.get(a).getUserId().equals(myFriendList.get(b))){
+                    myFriendContactList.add(contactList.get(a));
+                    Log.i("ggg2", "친구 숫자 : " + myFriendContactList.size()+"");
+                    Log.i("ggg2","친구목록 : " + contactList.get(a).getUserId());
+                }
+            }
+        }
 
     }
 
@@ -275,17 +350,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
 
                     // 파이어베이스에 내 gps 정보 업데이트
-                    Contact myContact = DaoImple.getInstance().getContact();
-                    List<Double> myLocation = new ArrayList<>();
-                    myLocation.add(location.getLatitude());
-                    myLocation.add(location.getLongitude());
-                    if(myContact != null) {
+                    if(DaoImple.getInstance().getContact() != null) {
+                        Contact myContact = DaoImple.getInstance().getContact();
+                        Log.i("ggg3", DaoImple.getInstance().getContact().getUserName());
+                        List<Double> myLocation = new ArrayList<>();
+                        myLocation.add(location.getLatitude());
+                        myLocation.add(location.getLongitude());
                         myContact.setUserLocation(myLocation);
+                        reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
+
                     }
 
+                    Log.i("ggg3",DaoImple.getInstance().getKey());
 
-                    reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
-
+                    Log.i("ggg3","gps 콘텍트 setvlaue");
                     //ClusterManagerItmes 이미지 추가/사이즈 줄이기
                     clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
                     clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusteringMarker>());
@@ -362,6 +440,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
 
+    }
+
+
+    // 이메일에서 특수문자 뺀 key값 구하기
+    public String getKey(String id){
+        int b = id.indexOf("@");
+        String key1 = id.substring(0,b);
+        int d = id.indexOf(".");
+        String key2 = id.substring(b + 1,d);
+        String key3 = id.substring(d + 1,id.length());
+        String key = key1+key2+key3;
+
+        return key;
     }
 
 }
