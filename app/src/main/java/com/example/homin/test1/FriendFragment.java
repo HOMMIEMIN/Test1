@@ -343,8 +343,6 @@ public class FriendFragment extends Fragment {
                                 searshName = null;
                                 }
 
-
-
                         }
 
                         @Override

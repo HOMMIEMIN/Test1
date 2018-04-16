@@ -80,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ClusterManager<ClusteringMarker> clusterManager;
     private List<Contact> myFriendContactList;
     private List<Contact> contactList;
+    private boolean check;
 
     //자기위치로 되돌리는 버튼
     private FloatingActionButton selfLocationButton;
@@ -222,32 +223,98 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         reference.child("Contact").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.i("ggg2","에드 들어옴");
                 if(myFriendList != null){
                     Contact contact = dataSnapshot.getValue(Contact.class);
                     for(int a = 0 ; a < myFriendList.size() ; a++){
                         if(myFriendList.get(a).equals(contact.getUserId())){
                             if(clusterManager == null){
                                 clusterManager = new ClusterManager<>(MapsActivity.this,mMap);
+                                mMap.setOnCameraIdleListener(clusterManager);
                             }
-                            if(a == 0){
+                            if(!(check)){
                                 clusterManager.clearItems();
+                                check = true;
+                                Log.i("ggg2",check+"");
                             }
 
                             // 친구들 위치정보 받아와서 구글맵에 갱신
                             List<Double> friendLocation = contact.getUserLocation();
                             ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),
-                                    friendLocation.get(1),contact.getUserName());
+                                    friendLocation.get(1));
                             Log.i("ggg2",contact.getUserId());
                             Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
                             clusterManager.addItem(friendMarker);
-                            clusterManager.cluster();
+                            if(a == myFriendList.size() - 1){
+                                Log.i("ggg2", "갱신 들어옴");
+                                clusterManager.cluster();
+                            }
+
                         }
+
                     }
                 }
             }
-
+             // 친구 위치 바뀌었을때 정보 갱신
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                check = false;
+                Log.i("ggg2","체인지 들어옴");
+                reference.child("Contact").addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        if(myFriendList != null){
+                            Contact contact = dataSnapshot.getValue(Contact.class);
+                            for(int a = 0 ; a < myFriendList.size() ; a++){
+                                if(myFriendList.get(a).equals(contact.getUserId())){
+                                    if(clusterManager == null){
+                                        clusterManager = new ClusterManager<>(MapsActivity.this,mMap);
+                                        mMap.setOnCameraIdleListener(clusterManager);
+                                    }
+                                    if(!(check)){
+                                        clusterManager.clearItems();
+                                        check = true;
+                                        Log.i("ggg2",check+"");
+                                    }
+
+                                    // 친구들 위치정보 받아와서 구글맵에 갱신
+                                    List<Double> friendLocation = contact.getUserLocation();
+                                    ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),
+                                            friendLocation.get(1));
+                                    Log.i("ggg2",contact.getUserId());
+                                    Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
+                                    clusterManager.addItem(friendMarker);
+                                    if(a == myFriendList.size() - 1){
+                                        Log.i("ggg2", "갱신 들어옴");
+                                        clusterManager.cluster();
+                                    }
+
+                                }
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
             }
 
@@ -267,7 +334,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
+        if(clusterManager != null) {
+            clusterManager.cluster();
+        }
     }
 
     private void getFriendList() {
@@ -308,14 +377,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
-        // 내 친구들 contact 리스트 add
-        for(int a = 0 ; a < contactList.size() ; a++){
-            for(int b = 0 ; b < myFriendList.size() ; b++){
-                if(contactList.get(a).getUserId().equals(myFriendList.get(b))){
-                    myFriendContactList.add(contactList.get(a));
-                }
-            }
-        }
+
 
     }
 
@@ -362,10 +424,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                     myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude(),
-                            DaoImple.getInstance().getLoginId());
+                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());
                     clusterManager.addItem(myMarker);
-                    clusterManager.cluster();
+//                    clusterManager.cluster();
                     Log.i("ggg2","내 클러스터 생성");
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
