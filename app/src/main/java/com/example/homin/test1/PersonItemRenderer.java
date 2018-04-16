@@ -26,9 +26,14 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker>
     @Override
     protected void onBeforeClusterItemRendered(ClusteringMarker item, MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
-        IconGenerator iconFactory = new IconGenerator(context);
 
-        markerOptions.title(item.getTitle());
+
+
+       Bitmap rectBitmap =  decodeSampledBitmapFromResource(this.context.getResources(),R.drawable.sample_image, 35, 35); //직사각형 사진
+       Bitmap roundBitmap =  getCircleBitmap(rectBitmap);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(roundBitmap));
+
+//        markerOptions.title("item");
 //        markerOptions.snippet();
 //
 //        final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -45,11 +50,42 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker>
 //
 //        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon("hello")));
 
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(decodeSampledBitmapFromResource(this.context.getResources(),R.drawable.sample_person, 35, 35)));
-
-
     }
 
+    //직사각형 비트맵을 원형으로 변환하는 메소드
+    public static Bitmap getCircleBitmap(Bitmap bitmap) {
+        Bitmap output;
+
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            output = Bitmap.createBitmap(bitmap.getHeight(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        } else {
+            output = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getWidth(), Bitmap.Config.ARGB_8888);
+        }
+
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        float r = 0;
+
+        if (bitmap.getWidth() > bitmap.getHeight()) {
+            r = bitmap.getHeight() / 2;
+        } else {
+            r = bitmap.getWidth() / 2;
+        }
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(r, r, r, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        return output;
+    }
+
+    //비트맵 메모리 부족 현상때문에 비트맵 메모리 줄이는 메소드
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
 
