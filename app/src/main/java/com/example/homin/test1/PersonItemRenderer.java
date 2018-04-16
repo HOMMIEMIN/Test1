@@ -14,14 +14,15 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
-public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker> {
+public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
     Context context;
     GoogleMap googleMap;
-    public PersonItemRenderer(Context context, GoogleMap map, ClusterManager<ClusteringMarker> clusterManager) {
+    public PersonItemRenderer(Context context, GoogleMap map, ClusterManager<ClusterItem> clusterManager) {
         super(context, map, clusterManager);
         this.context = context;
         this.googleMap = map;
@@ -29,31 +30,16 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker>
 
 
     @Override
-    protected void onBeforeClusterItemRendered(ClusteringMarker item, MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(ClusterItem item, MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
 
+        if(item instanceof ItemPerson) {
 
+            Bitmap rectBitmap = decodeSampledBitmapFromResource(this.context.getResources(), R.drawable.sample_image, 35, 35); //직사각형 사진
+            Bitmap roundBitmap = getCircleBitmap(rectBitmap);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(roundBitmap));
 
-       Bitmap rectBitmap =  decodeSampledBitmapFromResource(this.context.getResources(),R.drawable.sample_image, 35, 35); //직사각형 사진
-       Bitmap roundBitmap =  getCircleBitmap(rectBitmap);
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(roundBitmap));
-
-//        markerOptions.title("item");
-//        markerOptions.snippet();
-//
-//        final BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inJustDecodeBounds = true;
-//        Bitmap bitmap = BitmapFactory.decodeResource(this.context.getResources(),R.drawable.sample_person,options);
-//
-//       Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap,128,128,false);
-//        options.inSampleSize = calculateInSampleSize(options,100,100);
-//
-//        options.inJustDecodeBounds = false;
-//        bitmap = BitmapFactory.decodeResource(this.context.getResources(),R.drawable.sample_person,options);
-//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
-//
-//
-//        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon("hello")));
+        }
 
     }
 
@@ -133,12 +119,12 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker>
 
 
     @Override
-    protected void onBeforeClusterRendered(Cluster<ClusteringMarker> cluster, MarkerOptions markerOptions) {
+    protected void onBeforeClusterRendered(Cluster<ClusterItem> cluster, MarkerOptions markerOptions) {
         super.onBeforeClusterRendered(cluster, markerOptions);
     }
 
     @Override
-    protected boolean shouldRenderAsCluster(Cluster<ClusteringMarker> cluster) {
+    protected boolean shouldRenderAsCluster(Cluster<ClusterItem> cluster) {
         return super.shouldRenderAsCluster(cluster);
     }
 }

@@ -76,8 +76,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationManager locationManager;
     private LocationListener locationListener;
     private LatLng myLatLng;
-    private ClusteringMarker myMarker;
-    private ClusterManager<ClusteringMarker> clusterManager;
+    private ItemPerson myMarker;
+    private ClusterManager<ClusterItem> clusterManager;
     private List<Contact> myFriendContactList;
     private List<Contact> contactList;
     private boolean check;
@@ -240,8 +240,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                             // 친구들 위치정보 받아와서 구글맵에 갱신
                             List<Double> friendLocation = contact.getUserLocation();
-                            ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),
-                                    friendLocation.get(1));
+                            ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
+                                    friendLocation.get(1),contact.getUserName());
+
                             Log.i("ggg2",contact.getUserId());
                             Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
                             clusterManager.addItem(friendMarker);
@@ -279,8 +280,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     // 친구들 위치정보 받아와서 구글맵에 갱신
                                     List<Double> friendLocation = contact.getUserLocation();
-                                    ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),
-                                            friendLocation.get(1));
+                                    ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
+                                            friendLocation.get(1),contact.getUserName());
                                     Log.i("ggg2",contact.getUserId());
                                     Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
                                     clusterManager.addItem(friendMarker);
@@ -420,11 +421,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     //ClusterManagerItmes 이미지 추가/사이즈 줄이기
                     clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
-                    clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusteringMarker>());
+                    clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusterItem>());
 
 
                     myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());
+                    myMarker = new ItemPerson(location.getLatitude(),location.getLongitude(),
+                            DaoImple.getInstance().getLoginId());
+                    myMarker = new ItemPerson(location.getLatitude(),location.getLongitude(),"MyTitle");
                     clusterManager.addItem(myMarker);
 //                    clusterManager.cluster();
                     Log.i("ggg2","내 클러스터 생성");
