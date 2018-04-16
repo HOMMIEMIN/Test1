@@ -195,7 +195,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
-
+    // 내 gps 위치 받아오고, firebase에 contact 업데이트
     private void myLocationUpdate() {
         if (locationManager == null) {
             locationManager = (LocationManager) this.getSystemService(context.LOCATION_SERVICE);
@@ -211,21 +211,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if(clusterManager == null) {
                         clusterManager = new ClusterManager<>(MapsActivity.this, mMap);
                         mMap.setOnCameraIdleListener(clusterManager);
-                        Log.i("gg6","클러스터 생성");
+
                     }
                     if(myMarker != null) {
-                        clusterManager.removeItem(myMarker);
+                        clusterManager.clearItems();
+                        Log.i("gg6","클러스터 삭제");
                     }
+
+                    // 파이어베이스에 내 gps 정보 업데이트
                     Contact myContact = DaoImple.getInstance().getContact();
                     List<Double> myLocation = new ArrayList<>();
                     myLocation.add(location.getLatitude());
                     myLocation.add(location.getLongitude());
                     myContact.setUserLocation(myLocation);
+
                     reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
-                    Log.i("tt1",location.toString());
+                    Log.i("ㅎㅎ",location.toString());
+
                     myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
                     myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());
                     clusterManager.addItem(myMarker);
+                    clusterManager.cluster();
+
+                    Log.i("gg6","클러스터 생성");
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
 
                 }
