@@ -11,7 +11,6 @@ public class DaoImple {
 
     private static DaoImple instance = null;
     private String LoginEmail;
-    private List<Member> fList;
     private List<Chat> cList;
     private String LoginId;
     private String youEmail;
@@ -50,7 +49,6 @@ public class DaoImple {
     }
 
     private DaoImple(){
-        fList = new ArrayList<>();
         cList = new ArrayList<>();
     }
 
@@ -64,13 +62,6 @@ public class DaoImple {
         LoginEmail = loginEmail;
     }
 
-    public List<Member> getfList() {
-        return fList;
-    }
-
-    public void setfList(List<Member> fList) {
-        this.fList = fList;
-    }
 
     public List<Chat> getcList() {
         return cList;
