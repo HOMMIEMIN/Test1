@@ -120,19 +120,20 @@ public class LoginActivity extends AppCompatActivity {
                             DaoImple.getInstance().setKey(key);
                             Log.i("vv",key);
 
+                            Log.i("ggg3", "들어옴111");
+
                             reference.child("Contact").addChildEventListener(new ChildEventListener() {
                                 @Override
                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                                     Contact aa = dataSnapshot.getValue(Contact.class);
-                                    if(dataSnapshot.getKey().equals(key)) {
+                                    Log.i("ggg3", aa.getUserId());
+                                    if(aa.getUserId().equals(etEmail.getText().toString())) {
+                                        Log.i("ggg3", "들어옴33333");
                                         Contact c = dataSnapshot.getValue(Contact.class);
-                                        Log.i("tt1",c.getUserName());
-
-
-                                        Log.i("vv2","dd : " + c.getUserId());
                                         DaoImple.getInstance().setLoginEmail(c.getUserId());
                                         DaoImple.getInstance().setLoginId(c.getUserName());
                                         DaoImple.getInstance().setContact(c);
+                                        Log.i("ggg3","dd : " + c.getUserName());
                                     }
                                 }
 
@@ -157,6 +158,7 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             });
                             Intent intent = new Intent(LoginActivity.this,MapsActivity.class);
+                            Log.i("ggg3","startActivity");
                             startActivity(intent);
 
                         }
