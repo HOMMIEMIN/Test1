@@ -7,9 +7,15 @@ public class ClusteringMarker implements ClusterItem {
 
 
     private final LatLng mPosition;
+    private String title;
 
-    public ClusteringMarker(double lat, double lng) {
+    public ClusteringMarker(double lat, double lng, String title) {
         mPosition = new LatLng(lat, lng);
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override

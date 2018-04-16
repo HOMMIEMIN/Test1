@@ -229,14 +229,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             if(clusterManager == null){
                                 clusterManager = new ClusterManager<>(MapsActivity.this,mMap);
                             }
-
                             if(a == 0){
                                 clusterManager.clearItems();
                             }
 
                             // 친구들 위치정보 받아와서 구글맵에 갱신
                             List<Double> friendLocation = contact.getUserLocation();
-                            ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),friendLocation.get(1));
+                            ClusteringMarker friendMarker = new ClusteringMarker(friendLocation.get(0),
+                                    friendLocation.get(1),contact.getUserName());
+                            Log.i("ggg2",contact.getUserId());
                             Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
                             clusterManager.addItem(friendMarker);
                             clusterManager.cluster();
@@ -278,9 +279,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Contact contact = dataSnapshot.getValue(Contact.class);
                 contactList.add(contact);
                 if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
-                    Log.i("ggg2","프렌드리스트 전");
                     if(contact.getFriendList() != null) {
-                        Log.i("ggg2","프렌드리스트 가져옴");
                         myFriendList = contact.getFriendList();
 
                     }
@@ -309,16 +308,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         });
-        Log.i("ggg2","ㅇㅇㅇㅇ");
         // 내 친구들 contact 리스트 add
         for(int a = 0 ; a < contactList.size() ; a++){
-            Log.i("ggg2","mycontact.get(0) : "+myFriendList.get(0));
-            Log.i("ggg2","contactList.get(a) : " + contactList.get(a).getUserId());
             for(int b = 0 ; b < myFriendList.size() ; b++){
                 if(contactList.get(a).getUserId().equals(myFriendList.get(b))){
                     myFriendContactList.add(contactList.get(a));
-                    Log.i("ggg2", "친구 숫자 : " + myFriendContactList.size()+"");
-                    Log.i("ggg2","친구목록 : " + contactList.get(a).getUserId());
                 }
             }
         }
@@ -346,35 +340,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     if(myMarker != null) {
                         clusterManager.removeItem(myMarker);
-                        Log.i("gg6","클러스터 삭제");
                     }
 
                     // 파이어베이스에 내 gps 정보 업데이트
                     if(DaoImple.getInstance().getContact() != null) {
                         Contact myContact = DaoImple.getInstance().getContact();
-                        Log.i("ggg3", DaoImple.getInstance().getContact().getUserName());
                         List<Double> myLocation = new ArrayList<>();
                         myLocation.add(location.getLatitude());
                         myLocation.add(location.getLongitude());
                         myContact.setUserLocation(myLocation);
                         reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
+                        Log.i("ggg2", "mycontact 가져옴");
 
                     }
 
                     Log.i("ggg3",DaoImple.getInstance().getKey());
 
-                    Log.i("ggg3","gps 콘텍트 setvlaue");
                     //ClusterManagerItmes 이미지 추가/사이즈 줄이기
                     clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
                     clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusteringMarker>());
 
 
                     myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude());
+                    myMarker = new ClusteringMarker(location.getLatitude(),location.getLongitude(),
+                            DaoImple.getInstance().getLoginId());
                     clusterManager.addItem(myMarker);
                     clusterManager.cluster();
+                    Log.i("ggg2","내 클러스터 생성");
 
-                    Log.i("gg6","클러스터 생성");
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
 
                 }
@@ -443,16 +436,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    // 이메일에서 특수문자 뺀 key값 구하기
-    public String getKey(String id){
-        int b = id.indexOf("@");
-        String key1 = id.substring(0,b);
-        int d = id.indexOf(".");
-        String key2 = id.substring(b + 1,d);
-        String key3 = id.substring(d + 1,id.length());
-        String key = key1+key2+key3;
 
-        return key;
-    }
+
 
 }

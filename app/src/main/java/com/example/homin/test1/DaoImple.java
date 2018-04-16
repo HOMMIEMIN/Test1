@@ -78,4 +78,20 @@ public class DaoImple {
     public void setcList(List<Chat> cList) {
         this.cList = cList;
     }
+
+
+
+    // 이메일에서 특수문자 뺀 key값 구하기
+    public String getFirebaseKey(String id){
+        int b = id.indexOf("@");
+        String key1 = id.substring(0,b);
+        int d = id.indexOf(".");
+        String key2 = id.substring(b + 1,d);
+        String key3 = id.substring(d + 1,id.length());
+        String key = key1+key2+key3;
+
+        return key;
+    }
+
+
 }

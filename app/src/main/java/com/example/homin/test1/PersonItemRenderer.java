@@ -28,7 +28,7 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusteringMarker>
         super.onBeforeClusterItemRendered(item, markerOptions);
         IconGenerator iconFactory = new IconGenerator(context);
 
-//        markerOptions.title("item");
+        markerOptions.title(item.getTitle());
 //        markerOptions.snippet();
 //
 //        final BitmapFactory.Options options = new BitmapFactory.Options();
