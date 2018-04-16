@@ -176,6 +176,7 @@ public class FriendFragment extends Fragment {
                         }else if(friendCheck){
                             Toast.makeText(context, "이미 친구 신청이 되어 있습니다.", Toast.LENGTH_SHORT).show();
                         }else if(list2.get(position).getUserName().equals(DaoImple.getInstance().getLoginId())){
+
                             Toast.makeText(context, "자신을 추가할 수 없습니다.", Toast.LENGTH_SHORT).show();
                         }else{
                             String id = list2.get(position).getUserId();

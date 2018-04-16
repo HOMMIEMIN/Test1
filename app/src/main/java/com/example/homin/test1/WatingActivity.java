@@ -31,6 +31,8 @@ public class WatingActivity extends AppCompatActivity {
         private List<String> myfList;
         private List<String> yourfList;
         private List<String> myWattingList;
+        private List<Contact> contactList;
+        private String yourKey;
 
 
         @Override
@@ -45,12 +47,22 @@ public class WatingActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(CustomHolder holder, final int position) {
-            final String yourKey = getKey(list.get(position));
+            if(contactList == null){
+                contactList = new ArrayList<>();
+            }
+
+            yourKey = getKey(list.get(position));
+            Log.i("ggg1", "리스트 : "+yourKey);
+
             reference.child("Contact").addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Contact contact = dataSnapshot.getValue(Contact.class);
+                    contactList.add(contact);
                     if(dataSnapshot.getKey().equals(yourKey))
+                        Log.i("ggg1", "파이어베이스 getKey" + dataSnapshot.getKey());
                     yourContact = dataSnapshot.getValue(Contact.class);
+                    Log.i("ggg1", "유저 네임 : "+ yourContact.getUserName());
                 }
 
                 @Override
@@ -74,17 +86,20 @@ public class WatingActivity extends AppCompatActivity {
                 }
             });
 
+
             holder.textView.setText(list.get(position));
 //            holder.imageView.setImageResource(list.get(position).getPicture());
 
             holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    if(yourContact.getFriendList() == null){
-//                        List<String> yourList = new ArrayList<>();
-//                    }else {
-//                        List<String> yourList = yourContact.getFriendList();
-//                    }
+
+                    for(int a = 0; a < contactList.size() ; a++){
+                        if(contactList.get(a).getUserId().equals(list.get(position))){
+                            yourContact = contactList.get(a);
+                        }
+                    }
+
                     if(DaoImple.getInstance().getContact().getWattingList() == null){
                         myWattingList = new ArrayList<>();
                     }else{
