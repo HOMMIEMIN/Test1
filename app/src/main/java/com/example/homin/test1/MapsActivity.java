@@ -195,6 +195,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.i("gg6","클러스터 설정");
 
         myLocationUpdate();
+        friendLocationUpdate();
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -214,6 +215,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+
+    private void friendLocationUpdate() {
+        reference.child("Contact").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                // 내 친구 리스트 받아오기
+                Contact contact = dataSnapshot.getValue(Contact.class);
+                if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
+
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
     // 내 gps 위치 받아오고, firebase에 contact 업데이트
     private void myLocationUpdate() {
         if (locationManager == null) {
@@ -234,7 +270,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     }
                     if(myMarker != null) {
-                        clusterManager.clearItems();
+                        clusterManager.removeItem(myMarker);
                         Log.i("gg6","클러스터 삭제");
                     }
 
@@ -243,7 +279,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     List<Double> myLocation = new ArrayList<>();
                     myLocation.add(location.getLatitude());
                     myLocation.add(location.getLongitude());
-                    myContact.setUserLocation(myLocation);
+                    if(myContact != null) {
+                        myContact.setUserLocation(myLocation);
+                    }
 
 
                     reference.child("Contact").child(DaoImple.getInstance().getKey()).setValue(myContact);
