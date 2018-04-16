@@ -35,9 +35,13 @@
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/selfLocationIdentifier"
-
-
-                />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_weight="1"
+                android:background="@color/blue"
+                android:clickable="true"
+                android:src="@drawable/ic_notifications_black_24dp" />
 
 
         </fragment>
