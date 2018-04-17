@@ -37,17 +37,21 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
 
         if(item instanceof ItemPerson) {
 
-            Bitmap rectBitmap = decodeSampledBitmapFromInputStream(is, 35, 35); //직사각형 사진
-            Bitmap roundBitmap = getCircleBitmap(rectBitmap);
-            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(roundBitmap));
+//            Bitmap rectBitmap = decodeSampledBitmapFromResource(this.context.getResources(), ((ItemPerson) item).getImage(), 35, 35); //직사각형 사진
+//            Bitmap rectBitmap = decodeSampledBitmapFromInputStream(((ItemPerson) item).getImage(), 35, 35); //직사각형 사진
+//            Bitmap roundBitmap = getCircleBitmap(((ItemPerson) item).getImage());
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(((ItemPerson) item).getImage()));
             markerOptions.title(((ItemPerson) item).getTitle());
-
-        } else if (item instanceof ItemMemo){
-
 
 
 
         }
+//        } else if (item instanceof ItemMemo){
+//
+//
+//
+//
+//        }
 
     }
 

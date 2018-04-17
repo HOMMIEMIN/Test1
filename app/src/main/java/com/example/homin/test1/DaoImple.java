@@ -1,5 +1,18 @@
 package com.example.homin.test1;
 
+import android.util.Log;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StreamDownloadTask;
+
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +29,21 @@ public class DaoImple {
     private String youEmail;
     private String key;
     private Contact contact;
+    private StorageReference storageReference;
+    private FirebaseStorage storage;
+    private InputStream stream;
+    private List<InputStream> pictureList;
+    private List<String> pictrueUrlList;
+    private List<String> myFriendList;
+
+
+    public List<String> getMyFriendList() {
+        return myFriendList;
+    }
+
+    public void setMyFriendList(List<String> myFriendList) {
+        this.myFriendList = myFriendList;
+    }
 
     public Contact getContact() {
         return contact;
@@ -36,6 +64,7 @@ public class DaoImple {
     public static DaoImple getInstance(){
         if(instance == null){
             instance = new DaoImple();
+
         }
         return instance;
     }

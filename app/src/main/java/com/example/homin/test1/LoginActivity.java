@@ -133,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                                         DaoImple.getInstance().setContact(c);
                                         Log.i("ggg3","dd : " + c.getUserName());
                                     }
+
                                 }
 
                                 @Override
