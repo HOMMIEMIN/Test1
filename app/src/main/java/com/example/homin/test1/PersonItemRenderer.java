@@ -19,6 +19,8 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
+import java.io.InputStream;
+
 public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
     Context context;
     GoogleMap googleMap;
@@ -35,14 +37,17 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
 
         if(item instanceof ItemPerson) {
 
-            Bitmap rectBitmap = decodeSampledBitmapFromResource(this.context.getResources(), R.drawable.sample_image, 35, 35); //직사각형 사진
+            Bitmap rectBitmap = decodeSampledBitmapFromInputStream(is, 35, 35); //직사각형 사진
             Bitmap roundBitmap = getCircleBitmap(rectBitmap);
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(roundBitmap));
             markerOptions.title(((ItemPerson) item).getTitle());
 
+        } else if (item instanceof ItemMemo){
+
+
+
+
         }
-
-
 
     }
 
@@ -95,6 +100,23 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
     }
+
+    public static Bitmap decodeSampledBitmapFromInputStream(InputStream is, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is,null,options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeStream(is,null,options);
+    }
+
+
 
 
     public static int calculateInSampleSize(

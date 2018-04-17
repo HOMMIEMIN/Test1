@@ -52,6 +52,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -88,9 +90,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean check;
     private Location location;
 
+
     //자기위치로 되돌리는 버튼
     private FloatingActionButton selfLocationButton;
-
+    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -211,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         myLocationUpdate(); // 내 위치 업데이트
 
         getFriendList(); // 친구 목록 가져오기
-
+        showFriendsOnMap();
 
 
         actionButton.setOnClickListener(new View.OnClickListener() {
@@ -235,7 +238,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        if(clusterManager != null) {
+            clusterManager.cluster();
+        }
+    }
 
+    // 내 친구 리스트 받아오기
+    private void getFriendList() {
+        contactList = new ArrayList<>();
+        reference.child("Contact").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Contact contact = dataSnapshot.getValue(Contact.class);
+                contactList.add(contact);
+                if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
+                    if(contact.getFriendList() != null) {
+                        myFriendList = contact.getFriendList();
+
+                    }
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+
+    }
+
+    private void showFriendsOnMap(){
 
         // 친구 위치정보 받아오기
         reference.child("Contact").addChildEventListener(new ChildEventListener() {
@@ -274,7 +324,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
-             // 친구 위치 바뀌었을때 정보 갱신
+            // 친구 위치 바뀌었을때 정보 갱신
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 check = false;
@@ -355,51 +405,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        if(clusterManager != null) {
-            clusterManager.cluster();
-        }
-    }
-
-    // 내 친구 리스트 받아오기
-    private void getFriendList() {
-        contactList = new ArrayList<>();
-        reference.child("Contact").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Contact contact = dataSnapshot.getValue(Contact.class);
-                contactList.add(contact);
-                if(contact.getUserId().equals(DaoImple.getInstance().getLoginEmail())){
-                    if(contact.getFriendList() != null) {
-                        myFriendList = contact.getFriendList();
-
-                    }
-                }
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-
-
     }
 
     // 내 gps 위치 받아오고, firebase에 contact 업데이트
@@ -469,6 +474,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             };
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 100, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,100,locationListener);
 
 
 
