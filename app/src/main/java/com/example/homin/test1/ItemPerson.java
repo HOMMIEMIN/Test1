@@ -14,10 +14,10 @@ import java.io.InputStream;
 
         private final LatLng mPosition;
         private String userId;
-        private Bitmap image;
+        private String image;
 
 
-        public ItemPerson(double lat, double lng, String id, Bitmap image) {
+        public ItemPerson(double lat, double lng, String id, String image) {
             mPosition = new LatLng(lat, lng);
             this.userId = id;
             this.image = image;
@@ -28,7 +28,7 @@ import java.io.InputStream;
             return userId;
         }
 
-        public Bitmap getImage() {
+        public String getImage() {
             return image;
         }
 

@@ -242,10 +242,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(marker.getTitle().equals(DaoImple.getInstance().getLoginId())){
-                    openOptionsMenu();
-                }
-                Log.i("ff",marker.getTitle());
+//                if(marker.getTitle().equals(DaoImple.getInstance().getLoginId())){
+//                    openOptionsMenu();
+//                }
+//                Log.i("ff",marker.getTitle());
 
                 return false;
             }
@@ -280,33 +280,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 Log.i("ggg2",check+"");
                             }
                             // 친구들 위치정보 받아와서 구글맵에 갱신
-                            yourContact = contact;
                             friendLocation = contact.getUserLocation();
-                            int count = a;
-                            // 친구들 프로필 사진 가져오기
-                            Log.i("vvvv","프로필 가져옴");
-                            Picasso.get().load(contact.getPictureUrl()).resize(250,250)
-                                    .centerInside().into(new Target() {
-                                @Override
-                                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                    ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
-                                    friendLocation.get(1),yourContact.getUserName(),bitmap);
-                                    Log.i("vvvv1","이미지 로딩 완료");
-                                    clusterManager.addItem(friendMarker);
-                                    clusterManager.cluster();
-                                }
 
-                                @Override
-                                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                                    Log.i("vvvv1",e.getMessage());
+                            ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
+                                    friendLocation.get(1),contact.getUserName(),contact.getPictureUrl());
 
-                                }
-
-                                @Override
-                                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                                }
-                            });
+                            clusterManager.addItem(friendMarker);
                             Log.i("ggg2",contact.getUserId());
                             Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
 //                            clusterManager.addItem(friendMarker);
@@ -349,27 +328,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     int count = a;
                                     // 친구들 프로필 사진 가져오기
                                     Log.i("vvvv","프로필 가져옴");
-                                    Picasso.get().load(contact.getPictureUrl()).resize(250,250)
-                                            .centerInside().into(new Target() {
-                                        @Override
-                                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                                            ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
-                                                    friendLocation.get(1),yourContact.getUserName(),bitmap);
-                                            Log.i("vvvv1","이미지 로딩 완료");
-                                            clusterManager.addItem(friendMarker);
-                                            clusterManager.cluster();
-                                        }
-
-                                        @Override
-                                        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                                        }
-
-                                        @Override
-                                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                                        }
-                                    });
+                                    ItemPerson friendMarker = new ItemPerson(friendLocation.get(0),
+                                            friendLocation.get(1),yourContact.getUserName(),contact.getPictureUrl());
+                                    Log.i("vvvv1","이미지 로딩 완료");
+                                    clusterManager.addItem(friendMarker);
+                                    clusterManager.cluster();
                                     Log.i("ggg2",contact.getUserId());
                                     Log.i("ggg2",friendLocation.get(0) +" "+friendLocation.get(1));
 //                            clusterManager.addItem(friendMarker);
@@ -517,7 +480,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             @Override
                             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                                 myMarker = new ItemPerson(myLatLng.latitude,myLatLng.longitude,
-                                        DaoImple.getInstance().getLoginId(),bitmap);
+                                        DaoImple.getInstance().getLoginId(),DaoImple.getInstance().getContact().getPictureUrl());
                                 clusterManager.addItem(myMarker);
                                 clusterManager.cluster();
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 16));

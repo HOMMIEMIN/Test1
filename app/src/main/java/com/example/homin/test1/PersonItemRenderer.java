@@ -9,6 +9,8 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -18,8 +20,12 @@ import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.InputStream;
+import java.util.concurrent.Executors;
 
 public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
     Context context;
@@ -32,7 +38,7 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
 
 
     @Override
-    protected void onBeforeClusterItemRendered(ClusterItem item, MarkerOptions markerOptions) {
+    protected void onBeforeClusterItemRendered(ClusterItem item, final MarkerOptions markerOptions) {
         super.onBeforeClusterItemRendered(item, markerOptions);
 
         if(item instanceof ItemPerson) {
@@ -40,7 +46,29 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
 //            Bitmap rectBitmap = decodeSampledBitmapFromResource(this.context.getResources(), ((ItemPerson) item).getImage(), 35, 35); //직사각형 사진
 //            Bitmap rectBitmap = decodeSampledBitmapFromInputStream(((ItemPerson) item).getImage(), 35, 35); //직사각형 사진
 //            Bitmap roundBitmap = getCircleBitmap(((ItemPerson) item).getImage());
-            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(((ItemPerson) item).getImage()));
+            // 친구들 프로필 사진 가져오기
+            Log.i("vvvv","프로필 가져옴");
+            Picasso.get().load(((ItemPerson) item).getImage()).resize(250,250)
+                    .centerInside().into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                    Log.i("vvvv2","이미지 로딩 완료");
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+//                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.p1));
+                    Log.i("vvvv2",e.getMessage());
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
+//            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(((ItemPerson) item).getImage()));
             markerOptions.title(((ItemPerson) item).getTitle());
 
 
@@ -155,5 +183,23 @@ public class PersonItemRenderer extends DefaultClusterRenderer<ClusterItem> {
     @Override
     protected boolean shouldRenderAsCluster(Cluster<ClusterItem> cluster) {
         return super.shouldRenderAsCluster(cluster);
+    }
+}
+
+public class ImageHandler {
+
+    private static Picasso instance;
+
+    public static Picasso getSharedInstance(Context context)
+    {
+        if(instance == null)
+        {
+            instance = new Picasso.Builder(context).executor(Executors.newSingleThreadExecutor()).memoryCache(Cache.NONE).indicatorsEnabled(true).build();
+            return instance;
+        }
+        else
+        {
+            return instance;
+        }
     }
 }
