@@ -51,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
         etEmail = findViewById(R.id.editText);
         etPwd = findViewById(R.id.editText2);
         btnLogin = findViewById(R.id.button_login);

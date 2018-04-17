@@ -1,5 +1,6 @@
 package com.example.homin.test1;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -49,11 +51,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.example.homin.test1.WriteActivity.*;
@@ -81,6 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Contact> myFriendContactList;
     private List<Contact> contactList;
     private boolean check;
+    private Location location;
 
     //자기위치로 되돌리는 버튼
     private FloatingActionButton selfLocationButton;
@@ -196,19 +201,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         email = DaoImple.getInstance().getLoginEmail();
         mMap = googleMap;
         reference = FirebaseDatabase.getInstance().getReference();
+        if(clusterManager == null){
+            clusterManager = new ClusterManager<>(MapsActivity.this,mMap);
+            mMap.setOnCameraIdleListener(clusterManager);
+        }
         Log.i("gg6","클러스터 설정");
 
         myLocationUpdate(); // 내 위치 업데이트
+
         getFriendList(); // 친구 목록 가져오기
 
 
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                addMakerLocation = latLng;
-                openContextMenu(findViewById(R.id.map));
-            }
-        });
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,6 +220,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(intent1);
             }
         });
+
+        // 마커 클릭 리스너 등록
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                Log.i("ff",marker.getTitle());
+                Toast.makeText(MapsActivity.this, "누름", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
 
 
         // 친구 위치정보 받아오기
@@ -288,6 +303,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     if(a == myFriendList.size() - 1){
                                         Log.i("ggg2", "갱신 들어옴");
                                         clusterManager.cluster();
+
                                     }
 
                                 }
@@ -389,8 +405,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
                 Toast.makeText(context, "위치정보 공유 승인이 필요합니다", Toast.LENGTH_SHORT).show();
                 return;
+            }
+
+        if(clusterManager == null) {
+            clusterManager = new ClusterManager<>(MapsActivity.this, mMap);
+            mMap.setOnCameraIdleListener(clusterManager);
+
+        }
+
+            location = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            if(location != null){
+                myLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLatLng,16));
+                clusterManager.addItem(new ItemPerson(location.getLatitude(),location.getLongitude(),"MyTitle"));
+                clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
+                clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusterItem>());
+                clusterManager.cluster();
             }
 
             locationListener = new LocationListener() {
@@ -419,7 +452,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     Log.i("ggg3",DaoImple.getInstance().getKey());
 
-                    //ClusterManagerItmes 이미지 추가/사이즈 줄이기
+                    // ClusterManagerItmes 이미지 추가/사이즈 줄이기
                     clusterManager.setRenderer(new PersonItemRenderer(MapsActivity.this,mMap,clusterManager));
                     clusterManager.setAlgorithm(new GridBasedAlgorithm<ClusterItem>());
 

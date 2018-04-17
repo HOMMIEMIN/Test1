@@ -9,17 +9,17 @@ import com.google.maps.android.clustering.ClusterItem;
 
 
         private final LatLng mPosition;
-        private String title;
+        private String userId;
 
 
-        public ItemPerson(double lat, double lng, String title) {
+        public ItemPerson(double lat, double lng, String id) {
             mPosition = new LatLng(lat, lng);
-            this.title = title;
+            this.userId = id;
 
         }
 
         public String getTitle() {
-            return title;
+            return userId;
         }
 
         @Override
